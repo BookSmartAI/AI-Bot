@@ -1,104 +1,162 @@
 import express from "express";
-import fs from "fs";
 import cors from "cors";
 import bodyParser from "body-parser";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ===== CONFIG =====
+const CONFIG_DIR = path.join(__dirname, "config");
+const DATA_DIR = path.join(__dirname, "data");
+
+// 👉 Client par défaut
+const DEFAULT_CLIENT = "abattageks";
+
+// ===== MIDDLEWARE =====
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static("public"));
+app.use(express.static(__dirname));
 
-const DATA_DIR = "./data";
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+// ===== OUTILS =====
 
-function getCalendarFile(client){
-  return `${DATA_DIR}/${client}.json`;
+function loadConfig(clientId) {
+  const filePath = path.join(CONFIG_DIR, `${clientId}.json`);
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+  const raw = fs.readFileSync(filePath);
+  return JSON.parse(raw);
 }
 
-function loadCalendar(client){
-  const file = getCalendarFile(client);
-  if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify([]));
-  return JSON.parse(fs.readFileSync(file));
+function loadCalendar(clientId) {
+  const filePath = path.join(DATA_DIR, `calendar_${clientId}.json`);
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, "[]");
+  }
+  const raw = fs.readFileSync(filePath);
+  return JSON.parse(raw);
 }
 
-function saveCalendar(client,data){
-  fs.writeFileSync(getCalendarFile(client), JSON.stringify(data,null,2));
+function saveCalendar(clientId, data) {
+  const filePath = path.join(DATA_DIR, `calendar_${clientId}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
+
+// ===== ROUTES HTML =====
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "chat.html"));
+});
+
+app.get("/chat.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "chat.html"));
+});
+
+app.get("/calendar.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "calendar.html"));
+});
+
+// ===== API CHAT =====
 
 const sessions = {}; 
+// sessions[userId] = { step, serviceKey, date }
 
-app.post("/chat", (req,res)=>{
-  const {client, message} = req.body;
-  if(!sessions[client]) sessions[client]={step:0};
+app.post("/chat", (req, res) => {
+  const { userId, message, client } = req.body;
 
-  const session = sessions[client];
-  const text = message.toLowerCase();
-  let reply="";
+  const clientId = client || DEFAULT_CLIENT;
+  const config = loadConfig(clientId);
 
-  // STEP 0 → accueil
-  if(session.step === 0){
-    reply = 
-`👋 Bonjour !
-Pour quelle raison nous contactez-vous ?
-
-1️⃣ Prendre rendez-vous  
-2️⃣ Connaître les prix  
-3️⃣ Nos services`;
-
-    session.step = 1;
+  if (!config) {
+    return res.json({ reply: "❌ Client introuvable." });
   }
 
-  // STEP 1 → menu choix
-  else if(session.step === 1){
-    if(text.includes("1")){
-      reply = "Parfait 🙂 Quelle date souhaitez-vous ? (ex: 2026-02-10)";
-      session.step = 2;
+  if (!sessions[userId]) {
+    sessions[userId] = { step: 0 };
+  }
+
+  const session = sessions[userId];
+
+  // STEP 0 → message d’accueil
+  if (session.step === 0) {
+    session.step = 1;
+    return res.json({ reply: config.welcomeMessage });
+  }
+
+  // STEP 1 → choix du service
+  if (session.step === 1) {
+    const key = message.trim().toUpperCase();
+
+    if (!config.services[key]) {
+      return res.json({ reply: "Merci de choisir A, B, C ou D 🙂" });
     }
-    else if(text.includes("2")){
-      reply = "💈 Coupe : 25$ \n🧔 Barbe : 15$ \nCoupe + barbe : 35$";
-    }
-    else if(text.includes("3")){
-      reply = "Nos services : Coupe, Barbe, Coupe enfant, Styling.";
-    }
-    else {
-      reply = "Merci de répondre par 1, 2 ou 3 🙂";
-    }
+
+    session.serviceKey = key;
+    session.step = 2;
+
+    return res.json({ reply: config.services[key].response });
   }
 
   // STEP 2 → date
-  else if(session.step === 2){
-    session.date = message;
-    reply = "À quelle heure ? (ex: 14:30)";
+  if (session.step === 2) {
+    session.date = message.trim();
     session.step = 3;
+    return res.json({ reply: config.booking.askTimeMessage });
   }
 
-  // STEP 3 → heure + vérification
-  else if(session.step === 3){
-    const hour = message;
+  // STEP 3 → heure + sauvegarde calendrier
+  if (session.step === 3) {
+    const time = message.trim();
     const date = session.date;
 
-    let calendar = loadCalendar(client);
+    const calendar = loadCalendar(clientId);
 
-    const exists = calendar.find(r => r.date === date && r.hour === hour);
+    // Vérifie si déjà réservé
+    const exists = calendar.find(
+      (r) => r.date === date && r.time === time
+    );
 
-    if(exists){
-      reply = "❌ Ce créneau est déjà pris. Proposez une autre heure 🙂";
-    } else {
-      calendar.push({date,hour});
-      saveCalendar(client,calendar);
-      reply = `✅ Rendez-vous confirmé le ${date} à ${hour} ! Merci 🙂`;
-      session.step = 0;
+    if (exists) {
+      return res.json({
+        reply: "⛔ Ce créneau est déjà réservé. Merci de choisir une autre heure."
+      });
     }
-  }
 
-  res.json({reply});
+    calendar.push({
+      service: config.services[session.serviceKey].label,
+      date,
+      time,
+      userId
+    });
+
+    saveCalendar(clientId, calendar);
+
+    const confirmation = config.booking.confirmationMessage
+      .replace("{date}", date)
+      .replace("{time}", time);
+
+    delete sessions[userId];
+
+    return res.json({ reply: confirmation });
+  }
 });
 
-app.get("/calendar-data", (req,res)=>{
-  const client = req.query.client;
-  const calendar = loadCalendar(client);
+// ===== API CALENDRIER =====
+
+app.get("/api/calendar", (req, res) => {
+  const clientId = req.query.client || DEFAULT_CLIENT;
+  const calendar = loadCalendar(clientId);
   res.json(calendar);
 });
 
-app.listen(3000, ()=> console.log("Bot server running"));
+// ===== LANCEMENT =====
 
+app.listen(PORT, () => {
+  console.log("Bot server running on port " + PORT);
+});
