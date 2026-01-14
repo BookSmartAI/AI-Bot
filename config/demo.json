@@ -1,9 +1,0 @@
-{
-  "businessName": "Salon Belle Coupe ✂️",
-  "welcomeMessage": "Bonjour 👋 Merci de nous avoir contactés.",
-  "services": [
-    { "code": "A", "name": "Coupe cheveux", "price": "25$" },
-    { "code": "B", "name": "Barbe", "price": "15$" },
-    { "code": "C", "name": "Coupe + Barbe", "price": "35$" }
-  ]
-}

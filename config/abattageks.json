@@ -1,40 +1,25 @@
 {
-  "clientId": "abattageks",
-  "businessName": "AbattageKS",
-  "hours": "Ouvert 24h/24 - 7j/7",
-
-  "welcomeMessage": "Bonjour 👋 Bienvenue chez AbattageKS.\n\nQuelle est la raison de votre contact ?\n\nA️⃣ Abattage d'arbre\nB️⃣ Soumission gratuite\nC️⃣ Ramonage\nD️⃣ Voir les prix",
-
-  "services": {
-    "A": {
-      "label": "Abattage d'arbre",
-      "price": "500$",
-      "response": "🌳 Parfait ! Le service d’abattage d’arbre est au prix de 500$.\nSouhaitez-vous réserver une date pour l’intervention ?"
+  "name": "AbattageKS",
+  "services": [
+    {
+      "title": "Abattage d'arbre",
+      "description": "Service complet d'abattage sécuritaire.",
+      "price": "500$"
     },
-
-    "B": {
-      "label": "Soumission gratuite",
-      "price": "Gratuit",
-      "response": "📋 La soumission est totalement gratuite.\nQuelle date vous conviendrait pour une visite d’évaluation ?"
+    {
+      "title": "Soumission gratuite",
+      "description": "Évaluation gratuite sur place.",
+      "price": "0$"
     },
-
-    "C": {
-      "label": "Ramonage",
-      "price": "150$",
-      "response": "🧹 Le ramonage est au prix de 150$.\nVoulez-vous réserver une date pour le service ?"
+    {
+      "title": "Ramonage",
+      "description": "Nettoyage professionnel de cheminée.",
+      "price": "150$"
     },
-
-    "D": {
-      "label": "Voir les prix",
-      "price": "",
-      "response": "💰 Voici nos tarifs :\n\n🌳 Abattage d’arbre : 500$\n🧹 Ramonage : 150$\n📋 Soumission : Gratuite\n\nSouhaitez-vous réserver un rendez-vous ?"
+    {
+      "title": "Informations et prix",
+      "description": "Questions générales sur nos services.",
+      "price": "Variable"
     }
-  },
-
-  "booking": {
-    "enabled": true,
-    "askDateMessage": "📅 Quelle date souhaitez-vous ? (ex: 2026-02-15)",
-    "askTimeMessage": "⏰ À quelle heure ? (ex: 14:30)",
-    "confirmationMessage": "✅ Parfait ! Votre rendez-vous est confirmé pour le {date} à {time}. Merci de votre confiance !"
-  }
+  ]
 }
