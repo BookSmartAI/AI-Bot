@@ -1,25 +1,5 @@
 {
-  "name": "AbattageKS",
-  "services": [
-    {
-      "title": "Abattage d'arbre",
-      "description": "Service complet d'abattage sécuritaire.",
-      "price": "500$"
-    },
-    {
-      "title": "Soumission gratuite",
-      "description": "Évaluation gratuite sur place.",
-      "price": "0$"
-    },
-    {
-      "title": "Ramonage",
-      "description": "Nettoyage professionnel de cheminée.",
-      "price": "150$"
-    },
-    {
-      "title": "Informations et prix",
-      "description": "Questions générales sur nos services.",
-      "price": "Variable"
-    }
-  ]
+  "name": "Abattage KS",
+  "welcome": "Bonjour 👋 Quelle est la raison de votre contact ?",
+  "menu": "Choisissez : A) Abattage 🌳 (500$)  B) Soumission gratuite  C) Ramonage 🔥 (150$)"
 }

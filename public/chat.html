@@ -1,100 +1,43 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Bot IA - AbattageKS</title>
+<title>Abattage KS - Bot</title>
 <style>
-body{
-  font-family:Arial;
-  background:#0f0f0f;
-  color:white;
-  text-align:center;
-}
-#chat{
-  max-width:500px;
-  margin:20px auto;
-  background:#1c1c1c;
-  padding:20px;
-  border-radius:10px;
-  min-height:300px;
-}
-.msg{margin:10px;}
-.bot{color:#00ff9d;}
-.user{color:#ffffff;}
-input{
-  width:70%;
-  padding:10px;
-  border-radius:5px;
-  border:none;
-}
-button{
-  padding:10px 15px;
-  border:none;
-  background:#00ff9d;
-  color:#000;
-  border-radius:5px;
-  cursor:pointer;
-}
+body{background:#000;color:#fff;font-family:Arial;text-align:center;}
+#chat{max-width:500px;margin:40px auto;padding:20px;border:1px solid #444;}
+input,button{padding:10px;margin-top:10px;}
 </style>
 </head>
 <body>
 
-<h2>🤖 Assistant AbattageKS</h2>
-
+<h2>🤖 Abattage KS</h2>
 <div id="chat"></div>
 
-<input id="input" placeholder="Écrivez ici..." />
+<input id="msg" placeholder="Écris ton message...">
 <button onclick="send()">Envoyer</button>
 
 <script>
-let step = 0;
-let selectedService = "";
+const urlParams = new URLSearchParams(window.location.search);
+const client = urlParams.get("client") || "abattageks";
 
-const params = new URLSearchParams(window.location.search);
-const client = params.get("client") || "abattageks";
+let config;
 
-const chatBox = document.getElementById("chat");
-
-function addMsg(text, cls){
-  const div = document.createElement("div");
-  div.className = "msg " + cls;
-  div.innerText = text;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+async function loadConfig(){
+  const res = await fetch("/api/config?client=" + client);
+  config = await res.json();
+  document.getElementById("chat").innerHTML =
+    "<p><b>Bot:</b> " + config.welcome + "</p>";
 }
+loadConfig();
 
-async function send(){
-  const input = document.getElementById("input");
-  const msg = input.value.trim();
-  if(!msg) return;
-
-  addMsg(msg,"user");
-  input.value="";
-
-  const res = await fetch("/chat",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ client, message:msg, step, selectedService })
-  });
-
-  const data = await res.json();
-  addMsg(data.reply,"bot");
-  step = data.step;
-  selectedService = data.selectedService || "";
+function send(){
+  const msg = document.getElementById("msg").value;
+  document.getElementById("chat").innerHTML +=
+    "<p><b>Vous:</b> "+msg+"</p>";
+  document.getElementById("chat").innerHTML +=
+    "<p><b>Bot:</b> "+config.menu+"</p>";
 }
-
-// Auto start
-(async ()=>{
-  const res = await fetch("/chat",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ client, message:"", step:0 })
-  });
-  const data = await res.json();
-  addMsg(data.reply,"bot");
-  step = data.step;
-})();
 </script>
-
 </body>
 </html>
