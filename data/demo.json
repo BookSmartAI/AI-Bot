@@ -1,0 +1,10 @@
+{
+  "appointments": [
+    {
+      "service": "Coupe cheveux",
+      "date": "2026-01-19",
+      "hour": "18:40",
+      "user": "testUser"
+    }
+  ]
+}

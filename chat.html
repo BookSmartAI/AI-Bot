@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Test Bot IA</title>
+<style>
+body { font-family: Arial; background:#111; color:white; display:flex; justify-content:center; }
+#chat { width:400px; margin-top:40px; }
+#messages { border:1px solid #444; height:400px; overflow:auto; padding:10px; background:#000; }
+input { width:80%; padding:10px; }
+button { padding:10px; }
+.bot { color:#00ff99; margin:5px 0; }
+.user { color:#ffffff; margin:5px 0; text-align:right; }
+</style>
+</head>
+<body>
+
+<div id="chat">
+<h2>🤖 Test Bot Demo</h2>
+<div id="messages"></div>
+<input id="input" placeholder="Écris un message..." />
+<button onclick="sendMessage()">Envoyer</button>
+</div>
+
+<script>
+const clientId = "demo";
+const userId = "testUser";
+
+async function sendMessage(){
+  const input = document.getElementById("input");
+  const msg = input.value;
+  if(!msg) return;
+
+  addMessage(msg, "user");
+  input.value = "";
+
+  const res = await fetch(`/chat/${clientId}`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ userId:userId, message:msg })
+  });
+
+  const data = await res.json();
+  addMessage(data.reply, "bot");
+}
+
+function addMessage(text, type){
+  const div = document.createElement("div");
+  div.className = type;
+  div.innerText = text;
+  document.getElementById("messages").appendChild(div);
+}
+</script>
+
+</body>
+</html>
