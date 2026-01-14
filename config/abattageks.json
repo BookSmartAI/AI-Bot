@@ -1,0 +1,45 @@
+{
+  "name": "AbattageKS",
+  "welcomeMessage": "Bonjour 👋 Bienvenue chez AbattageKS.\n\nPour quelle raison nous contactez-vous ?\n\nA️⃣ Abattage d’arbre\nB️⃣ Soumission gratuite\nC️⃣ Ramonage de cheminée\nD️⃣ Prix des services\n\nRépondez avec A, B, C ou D.",
+  
+  "services": [
+    {
+      "code": "A",
+      "label": "Abattage d’arbre",
+      "price": 500,
+      "duration": 120,
+      "response": "🌳 Service d’abattage d’arbre\nPrix fixe : 500$.\nSouhaitez-vous réserver une date ? (Oui / Non)"
+    },
+    {
+      "code": "B",
+      "label": "Soumission gratuite",
+      "price": 0,
+      "duration": 30,
+      "response": "📋 Soumission 100% gratuite.\nVeuillez indiquer votre adresse et une date souhaitée."
+    },
+    {
+      "code": "C",
+      "label": "Ramonage",
+      "price": 150,
+      "duration": 60,
+      "response": "🔥 Ramonage de cheminée\nPrix : 150$.\nQuelle date et heure vous convient ?"
+    },
+    {
+      "code": "D",
+      "label": "Voir les prix",
+      "price": 0,
+      "duration": 0,
+      "response": "💰 Nos tarifs :\n• Abattage d’arbre : 500$\n• Ramonage : 150$\n• Soumission : Gratuite\n\nSouhaitez-vous réserver un service ? (Oui / Non)"
+    }
+  ],
+
+  "openingHours": {
+    "monday": ["00:00", "23:59"],
+    "tuesday": ["00:00", "23:59"],
+    "wednesday": ["00:00", "23:59"],
+    "thursday": ["00:00", "23:59"],
+    "friday": ["00:00", "23:59"],
+    "saturday": ["00:00", "23:59"],
+    "sunday": ["00:00", "23:59"]
+  }
+}
